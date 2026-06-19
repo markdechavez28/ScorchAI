@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My.Solar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="card auth-card">
+    <h1 class="auth-title">☀ My.Solar</h1>
+    <p class="hint">Sign in to track your chat history, or create an account.</p>
+    <div class="radio-row auth-mode-toggle">
+      <button type="button" class="tab-btn-flat active" id="mode-login">Log in</button>
+      <button type="button" class="tab-btn-flat" id="mode-signup">Sign up</button>
+    </div>
+    <form id="auth-form" class="tool-form">
+      <label>Username <input type="text" name="username" id="auth-username" required autocomplete="username"></label>
+      <label>Password <input type="password" name="password" id="auth-password" required autocomplete="current-password"></label>
+      <p class="error" id="auth-error" style="display:none"></p>
+      <button type="submit" class="btn-dark" id="auth-submit">Log in</button>
+    </form>
+  </div>
+</div>
+
+<div id="shell" style="display:none">
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar">
+    <div class="logo">☀</div>
+    <nav id="tabs">
+      <button class="tab-btn active" data-tab="chat" title="Chat Agent">
+        <svg viewBox="0 0 24 24"><path d="M4 5h16v10H9l-4 4V5z"/></svg>
+      </button>
+      <button class="tab-btn" data-tab="predict" title="Predict Output">
+        <svg viewBox="0 0 24 24"><path d="M13 3 5 14h6l-1 7 8-11h-6l1-7z"/></svg>
+      </button>
+      <button class="tab-btn" data-tab="farm" title="Farm Sizing">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
+      </button>
+      <button class="tab-btn" data-tab="bestmonth" title="Best Month">
+        <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>
+      </button>
+      <button class="tab-btn" data-tab="cloud" title="Cloud Sensitivity">
+        <svg viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-1-7.9 5 5 0 0 1 9.6-1.7A4.5 4.5 0 0 1 17 18H7z"/></svg>
+      </button>
+      <button class="tab-btn" data-tab="map" title="City Explorer">
+        <svg viewBox="0 0 24 24"><path d="M12 21s7-6.6 7-12a7 7 0 1 0-14 0c0 5.4 7 12 7 12z"/><circle cx="12" cy="9" r="2.4"/></svg>
+      </button>
+    </nav>
+    <div id="help-link" title="My.Solar &mdash; see README.md for full methodology">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 17v-1m0-3a2 2 0 1 0-2-2"/></svg>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div id="main">
+    <header id="topbar">
+      <div>
+        <p class="breadcrumb">My.Solar &rsaquo; <span id="crumb-current">Chat Agent</span></p>
+        <h1 id="page-title">Chat Agent</h1>
+      </div>
+      <div class="topbar-right">
+        <span class="status-pill"><span class="dot"></span> 48 stations &middot; model ready</span>
+        <span class="user-pill"><span id="user-name"></span><button type="button" id="logout-btn">Logout</button></span>
+      </div>
+    </header>
+
+    <main>
+
+      <!-- CHAT -->
+      <section id="tab-chat" class="tab-content active">
+        <div class="grid grid-chat">
+          <div class="card conversations-card">
+            <button type="button" class="btn-dark" id="new-chat-btn">+ New chat</button>
+            <ul id="conversation-list"></ul>
+          </div>
+          <div class="card chat-card">
+            <div id="chat-log"></div>
+            <div id="chat-empty-state">
+              <h3>Try asking</h3>
+              <p class="hint">No external LLM &mdash; a deterministic tool-calling agent that always discloses assumed inputs.</p>
+              <div id="chat-examples">
+                <button class="example-btn">What is my expected solar output tomorrow in Darwin if it's cloudy and rainy?</button>
+                <button class="example-btn">If I set up a solar farm in Alice Springs of size 2 MW, what's my expected daily output?</button>
+                <button class="example-btn">Which month is Hobart likely to have the highest solar output?</button>
+                <button class="example-btn">How much will cloud cover reduce my expected output compared to a clear day in Perth?</button>
+                <button class="example-btn">Given typical conditions in Brisbane in October, what's my expected output?</button>
+              </div>
+            </div>
+            <form id="chat-form">
+              <input type="text" id="chat-input" placeholder="Ask about expected output, farm sizing, best months..." autocomplete="off">
+              <button type="submit" class="btn-dark">Ask</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- PREDICT -->
+      <section id="tab-predict" class="tab-content">
+        <div class="grid grid-2">
+          <form id="predict-form" class="card tool-form">
+            <label>Location <select class="location-select" name="location" required></select></label>
+            <label>Month <select class="month-select" name="month" required></select></label>
+            <details>
+              <summary>Specify expected weather (optional)</summary>
+              <div class="weather-grid weather-fields"></div>
+            </details>
+            <button type="submit" class="btn-dark">Predict</button>
+          </form>
+          <div class="card result-card" id="predict-result">
+            <p class="placeholder">Results will appear here.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- FARM -->
+      <section id="tab-farm" class="tab-content">
+        <div class="grid grid-2">
+          <form id="farm-form" class="card tool-form">
+            <label>Location <select class="location-select" name="location" required></select></label>
+            <label>Month <select class="month-select" name="month" required></select></label>
+            <div class="radio-row">
+              <label><input type="radio" name="sizing_mode" value="capacity" checked> By capacity (kW)</label>
+              <label><input type="radio" name="sizing_mode" value="area"> By area (m&sup2;)</label>
+            </div>
+            <label id="capacity-label">Capacity (kW) <input type="number" name="capacity_kw" value="1000" min="1"></label>
+            <label id="area-label" style="display:none">Area (m&sup2;) <input type="number" name="area_m2" value="10000" min="1"></label>
+            <label>Days <input type="number" name="days" value="1" min="1" max="365"></label>
+            <details>
+              <summary>Specify expected weather (optional)</summary>
+              <div class="weather-grid weather-fields"></div>
+            </details>
+            <button type="submit" class="btn-dark">Estimate</button>
+          </form>
+          <div class="card result-card" id="farm-result">
+            <p class="placeholder">Results will appear here.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- BEST MONTH -->
+      <section id="tab-bestmonth" class="tab-content">
+        <div class="grid grid-2">
+          <form id="bestmonth-form" class="card tool-form">
+            <label>Location <select class="location-select" name="location" required></select></label>
+            <button type="submit" class="btn-dark">Show ranking</button>
+          </form>
+          <div class="card chart-card">
+            <canvas id="bestmonth-chart" height="260"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- CLOUD SENSITIVITY -->
+      <section id="tab-cloud" class="tab-content">
+        <div class="grid grid-2">
+          <form id="cloud-form" class="card tool-form">
+            <label>Location <select class="location-select" name="location" required></select></label>
+            <label>Month <select class="month-select" name="month" required></select></label>
+            <button type="submit" class="btn-dark">Show sensitivity</button>
+          </form>
+          <div class="card chart-card">
+            <canvas id="cloud-chart" height="260"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- MAP -->
+      <section id="tab-map" class="tab-content">
+        <div class="card map-card">
+          <p class="hint">All 48 supported weather stations, colored/sized by annual PV output potential (10km zonal-mean buffer). Click a marker for details.</p>
+          <div id="map"></div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

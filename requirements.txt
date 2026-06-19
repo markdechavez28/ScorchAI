@@ -1,0 +1,12 @@
+numpy
+pandas
+rasterio
+shapely
+pyproj
+scikit-learn
+matplotlib
+joblib
+requests
+jupyter
+fastapi
+uvicorn
