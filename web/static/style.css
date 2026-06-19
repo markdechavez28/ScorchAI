@@ -58,14 +58,6 @@ body {
 .tab-btn svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .tab-btn:hover { color: var(--ink); }
 .tab-btn.active { background: var(--ink); color: var(--accent); }
-#help-link {
-  width: 44px; height: 44px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--muted);
-  cursor: default;
-}
-#help-link svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.6; }
 
 /* ---------------- main ---------------- */
 #main { flex: 1; padding: 1.5rem 2rem 3rem 0; min-width: 0; }
@@ -207,6 +199,18 @@ details summary { cursor: pointer; color: var(--muted); font-size: 0.85rem; font
 .chat-msg.agent .bubble { background: #f1f2f6; color: var(--ink); border-bottom-left-radius: 4px; }
 .chat-msg.user { justify-content: flex-end; }
 .chat-msg.user .bubble { background: var(--ink); color: var(--accent); border-bottom-right-radius: 4px; }
+
+/* rendered markdown inside chat bubbles */
+.bubble p { margin: 0 0 0.5em; }
+.bubble p:last-child { margin-bottom: 0; }
+.bubble ul, .bubble ol { margin: 0.3em 0 0.5em; padding-left: 1.3em; }
+.bubble li { margin-bottom: 0.2em; }
+.bubble strong { font-weight: 700; }
+.bubble code { background: rgba(0, 0, 0, 0.08); padding: 0.1em 0.35em; border-radius: 4px; font-size: 0.85em; }
+.bubble table { border-collapse: collapse; width: 100%; margin: 0.4em 0 0.6em; font-size: 0.85em; }
+.bubble th, .bubble td { border: 1px solid rgba(0, 0, 0, 0.12); padding: 0.35em 0.6em; text-align: left; }
+.chat-msg.user .bubble code { background: rgba(255, 255, 255, 0.15); }
+.chat-msg.user .bubble th, .chat-msg.user .bubble td { border-color: rgba(255, 255, 255, 0.25); }
 #chat-form { display: flex; gap: 0.6rem; }
 #chat-input { flex: 1; padding: 0.7rem 1rem; border: 1px solid var(--line); border-radius: var(--radius-pill); font-size: 0.95rem; font-family: inherit; }
 #chat-input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }

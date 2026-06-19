@@ -36,6 +36,7 @@ python -m venv .venv
 .venv\Scripts\python src\solarout\raster_extract.py
 .venv\Scripts\python src\solarout\build_dataset.py
 .venv\Scripts\python src\solarout\model.py
+:: create a .env file in the repo root with ANTHROPIC_API_KEY=sk-ant-... first (see Task 3 below)
 .venv\Scripts\python src\solarout\agent.py -q "What is my expected solar output tomorrow in Darwin if it's cloudy and rainy?"
 ```
 
@@ -137,15 +138,37 @@ floor, which is physically impossible).
 
 ## Task 3: The Q&A agent
 
-**LLM choice**: by explicit design decision, the agent (`src/solarout/agent.py`)
-is a **deterministic tool-calling dispatcher with no external LLM API call**
--- a small regex/keyword NLU layer (city/typo matching, unit parsing,
-qualitative-weather-term mapping, date/month parsing) that calls the exact
-same tool functions (`src/solarout/tools.py`) a function-calling LLM loop
-would call. This guarantees a working demo with no API key/cost dependency.
-The tool functions are intentionally self-contained with clear signatures so
-swapping in a real Claude/OpenAI tool-use loop later means replacing only
-`agent.interpret()` -- `tools.py` doesn't change.
+**LLM choice**: the agent (`src/solarout/agent.py`) is a real LLM-powered
+tool-calling agent using **Claude Haiku 4.5** (`claude-haiku-4-5`) via the
+official `anthropic` Python SDK's `tool_runner`. The six functions in
+`src/solarout/tools.py` are exposed to the model as tools (via the
+`@beta_tool` decorator, which generates each tool's JSON schema straight from
+the function's type hints and docstring); the model decides which tool(s) to
+call, translates qualitative weather language ("cloudy and rainy") into the
+tools' numeric arguments itself, does unit conversions (MW -> kW, hectares ->
+m²) itself, and writes the final natural-language answer from the tool
+results. `tools.py` itself is unchanged -- the agent is purely the dispatcher
+in front of it. Haiku 4.5 was chosen over a larger model because the tool
+surface is small and well-specified (6 functions, clear docstrings), so the
+cheapest current Claude model is sufficient; swapping `MODEL` in `agent.py`
+to `claude-sonnet-4-6` or `claude-opus-4-8` requires no other code changes.
+
+**Setup**: requires an Anthropic API key. Get one at
+[console.anthropic.com](https://console.anthropic.com), then create a file
+named `.env` in the repo root (copy `.env.example`) containing:
+
+```
+ANTHROPIC_API_KEY=sk-ant-...
+```
+
+`.env` is in `.gitignore` and is never committed. `agent.py` loads it
+automatically (via `python-dotenv`) regardless of your current directory, so
+no shell environment variable needs to be set.
+
+Multi-turn context is supported: the CLI keeps the conversation in memory for
+the session, and the web app persists it per-conversation in `data/app.db`
+and replays it to Claude on every turn, so follow-up questions ("what about
+for a 5 MW farm there instead?") work without repeating earlier context.
 
 ### Handling missing weather (explicitly stated, as required)
 
@@ -163,8 +186,10 @@ swapping in a real Claude/OpenAI tool-use loop later means replacing only
    borrowing a climatological sunshine value that the user didn't ask for.
 
 This is a blend of the task's suggested strategies #2 (assume typical
-conditions) and a third "answer at reduced confidence" mode, with every
-assumption disclosed in the response text -- never a silent guess.
+conditions) and a third "answer at reduced confidence" mode. The tool
+functions return the disclosure fields (`assumed_climatological_inputs`,
+`model_variant`, `model_holdout_r2`); the agent's system prompt instructs
+Claude to always surface them in plain language -- never a silent guess.
 
 ### The 5 required questions
 
@@ -202,7 +227,7 @@ live demoing (no Node/npm/build step -- just the existing venv):
 .venv\Scripts\python scripts\run_web.py
 ```
 
-Then open **http://127.0.0.1:8000**. The app is branded **My.Solar**. Tabs:
+Then open **http://127.0.0.1:8000**. The app is branded **SolarMate**. Tabs:
 **Chat Agent** (free-text Q&A, with one-click buttons for the 5 required
 questions), **Predict Output**, **Farm Sizing** (by capacity or area),
 **Best Month** (chart), **Cloud Sensitivity** (chart), and **City Explorer**

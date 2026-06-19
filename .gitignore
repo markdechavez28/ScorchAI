@@ -5,3 +5,4 @@ data/raw/
 models/*.joblib
 .ipynb_checkpoints/
 *.egg-info/
+.env

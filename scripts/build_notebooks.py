@@ -174,12 +174,15 @@ def build_03_agent_questions():
 
     cells = [
         ("md", "# 3. The Agent: 5 Questions It Can Answer Accurately\n\n"
-               "The agent (`src/solarout/agent.py`) is a deterministic tool-calling dispatcher "
-               "(no external LLM key required -- see README) over the tool functions in "
-               "`src/solarout/tools.py`. **Missing weather handling**: when a question doesn't "
-               "specify expected weather, the agent falls back to that city's long-run historical "
-               "average conditions for the relevant month (climatology), explicitly disclosing which "
-               "inputs were assumed rather than guessing silently or refusing to answer."),
+               "The agent (`src/solarout/agent.py`) is a real LLM-powered tool-calling agent: "
+               "Claude Haiku 4.5, via the `anthropic` SDK's `tool_runner`, with the six functions "
+               "in `src/solarout/tools.py` exposed as tools. Claude decides which tool(s) to call, "
+               "translates qualitative weather language and units itself, and writes the final "
+               "answer -- this requires `ANTHROPIC_API_KEY` to be set (see README). "
+               "**Missing weather handling**: when a question doesn't specify expected weather, "
+               "the relevant tool falls back to that city's long-run historical average conditions "
+               "for the relevant month (climatology), and the agent's system prompt instructs it to "
+               "always disclose which inputs were assumed rather than guessing silently."),
         ("code", "import sys\nfrom pathlib import Path\nsys.path.insert(0, str(Path.cwd().parent / 'src'))\n\n"
                  "from solarout.agent import interpret\nfrom solarout.tools import SolarTools\n\n"
                  "tools = SolarTools()"),

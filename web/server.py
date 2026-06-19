@@ -2,7 +2,7 @@
 
 Thin wrapper around the existing src/solarout package -- every route just
 calls into SolarTools / agent.interpret, which already do all the real
-work (model inference, climatology lookups, the deterministic NLU agent).
+work (model inference, climatology lookups, the Claude tool-use agent).
 No new business logic lives here.
 """
 import sys
@@ -12,6 +12,19 @@ from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+from starlette.types import Scope
+
+
+class NoCacheStaticFiles(StaticFiles):
+    """Force the browser to revalidate (not blindly reuse a stale cached copy)
+    on every request -- this is an actively-edited local demo, not a CDN asset;
+    a plain refresh should always pick up the latest app.js/index.html/style.css
+    instead of requiring a hard refresh after every change."""
+
+    async def get_response(self, path: str, scope: Scope):
+        response = await super().get_response(path, scope)
+        response.headers["Cache-Control"] = "no-cache"
+        return response
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
@@ -21,7 +34,7 @@ from solarout.tools import SolarTools
 
 import web.accounts as accounts
 
-app = FastAPI(title="My.Solar API")
+app = FastAPI(title="SolarMate API")
 tools = SolarTools()
 accounts.init_db()
 
@@ -177,10 +190,13 @@ def chat(req: ChatRequest, user_id: int = Depends(get_current_user_id)):
     conversation_id = req.conversation_id
     if conversation_id is None:
         conversation_id = accounts.create_conversation(user_id, accounts.make_title(req.question))
+        history = []
+    else:
+        history = accounts.get_conversation_messages(conversation_id, user_id)
     accounts.add_message(conversation_id, user_id, "user", req.question)
-    answer = interpret(req.question, tools)
+    answer = interpret(req.question, tools, history)
     accounts.add_message(conversation_id, user_id, "agent", answer)
     return {"answer": answer, "conversation_id": conversation_id}
 
 
-app.mount("/", StaticFiles(directory=ROOT / "web" / "static", html=True), name="static")
+app.mount("/", NoCacheStaticFiles(directory=ROOT / "web" / "static", html=True), name="static")

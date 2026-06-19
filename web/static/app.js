@@ -121,10 +121,18 @@ function showChatEmptyState() {
   chatEmptyState.style.display = "block";
 }
 
+function renderMarkdown(text) {
+  // Agent answers (and replayed history) are markdown; render it, but sanitize the
+  // resulting HTML in case the model ever echoes back something injection-like.
+  if (typeof marked === "undefined") return text;
+  const html = marked.parse(text, { breaks: true });
+  return typeof DOMPurify !== "undefined" ? DOMPurify.sanitize(html) : html;
+}
+
 function addChatMsg(who, text) {
   const div = document.createElement("div");
   div.className = "chat-msg " + (who === "You" ? "user" : "agent");
-  div.innerHTML = `<div class="bubble">${text}</div>`;
+  div.innerHTML = `<div class="bubble">${renderMarkdown(text)}</div>`;
   chatLog.appendChild(div);
   chatLog.scrollTop = chatLog.scrollHeight;
 }

@@ -3,12 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My.Solar</title>
+<title>SolarMate</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -16,7 +18,7 @@
 <!-- AUTH SCREEN -->
 <div id="auth-screen">
   <div class="card auth-card">
-    <h1 class="auth-title">☀ My.Solar</h1>
+    <h1 class="auth-title">☀ SolarMate</h1>
     <p class="hint">Sign in to track your chat history, or create an account.</p>
     <div class="radio-row auth-mode-toggle">
       <button type="button" class="tab-btn-flat active" id="mode-login">Log in</button>
@@ -56,16 +58,13 @@
         <svg viewBox="0 0 24 24"><path d="M12 21s7-6.6 7-12a7 7 0 1 0-14 0c0 5.4 7 12 7 12z"/><circle cx="12" cy="9" r="2.4"/></svg>
       </button>
     </nav>
-    <div id="help-link" title="My.Solar &mdash; see README.md for full methodology">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 17v-1m0-3a2 2 0 1 0-2-2"/></svg>
-    </div>
   </aside>
 
   <!-- MAIN -->
   <div id="main">
     <header id="topbar">
       <div>
-        <p class="breadcrumb">My.Solar &rsaquo; <span id="crumb-current">Chat Agent</span></p>
+        <p class="breadcrumb">SolarMate &rsaquo; <span id="crumb-current">Chat Agent</span></p>
         <h1 id="page-title">Chat Agent</h1>
       </div>
       <div class="topbar-right">
@@ -87,7 +86,7 @@
             <div id="chat-log"></div>
             <div id="chat-empty-state">
               <h3>Try asking</h3>
-              <p class="hint">No external LLM &mdash; a deterministic tool-calling agent that always discloses assumed inputs.</p>
+              <p class="hint">Powered by Claude (tool-calling agent) &mdash; always discloses assumed inputs and model confidence.</p>
               <div id="chat-examples">
                 <button class="example-btn">What is my expected solar output tomorrow in Darwin if it's cloudy and rainy?</button>
                 <button class="example-btn">If I set up a solar farm in Alice Springs of size 2 MW, what's my expected daily output?</button>
