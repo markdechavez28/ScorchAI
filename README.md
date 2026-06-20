@@ -227,7 +227,7 @@ live demoing (no Node/npm/build step -- just the existing venv):
 .venv\Scripts\python scripts\run_web.py
 ```
 
-Then open **http://127.0.0.1:8000**. The app is branded **SolarMate**. Tabs:
+Then open **http://127.0.0.1:8000**. The app is branded **ScorchAI**. Tabs:
 **Chat Agent** (free-text Q&A, with one-click buttons for the 5 required
 questions), **Predict Output**, **Farm Sizing** (by capacity or area),
 **Best Month** (chart), **Cloud Sensitivity** (chart), and **City Explorer**

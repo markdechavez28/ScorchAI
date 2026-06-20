@@ -99,6 +99,7 @@ body {
 }
 .auth-card { width: 100%; max-width: 360px; }
 .auth-title { margin: 0 0 0.3rem; font-size: 1.6rem; font-weight: 800; }
+.auth-tagline { color: var(--muted); font-size: 0.92rem; line-height: 1.4; margin: 0 0 1rem; }
 .auth-mode-toggle { margin: 1rem 0; gap: 0.6rem !important; }
 .tab-btn-flat {
   flex: 1; border: 1px solid var(--line); background: #fbfbfd; color: var(--muted);

@@ -34,7 +34,7 @@ from solarout.tools import SolarTools
 
 import web.accounts as accounts
 
-app = FastAPI(title="SolarMate API")
+app = FastAPI(title="ScorchAI API")
 tools = SolarTools()
 accounts.init_db()
 
