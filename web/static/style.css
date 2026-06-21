@@ -39,11 +39,14 @@ body {
   width: 44px; height: 44px;
   display: flex; align-items: center; justify-content: center;
   font-size: 1.4rem;
-  background: var(--ink);
+  background: transparent;
   color: var(--accent);
   border-radius: var(--radius-md);
+  margin-top: 1rem;
   margin-bottom: 0.5rem;
+  overflow: visible;
 }
+#sidebar .logo img { width: 64px; height: 64px; object-fit: contain; }
 #tabs { display: flex; flex-direction: column; gap: 0.6rem; flex: 1; }
 .tab-btn {
   width: 48px; height: 48px;
@@ -98,7 +101,8 @@ body {
   background: var(--bg); z-index: 100;
 }
 .auth-card { width: 100%; max-width: 360px; }
-.auth-title { margin: 0 0 0.3rem; font-size: 1.6rem; font-weight: 800; }
+.auth-title { margin: 0 0 0.3rem; font-size: 1.6rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem; }
+.auth-logo { width: 3.2rem; height: 3.2rem; object-fit: contain; }
 .auth-tagline { color: var(--muted); font-size: 0.92rem; line-height: 1.4; margin: 0 0 1rem; }
 .auth-mode-toggle { margin: 1rem 0; gap: 0.6rem !important; }
 .tab-btn-flat {
@@ -134,7 +138,7 @@ main { max-width: 1080px; }
 /* ---------------- forms ---------------- */
 .tool-form { display: flex; flex-direction: column; gap: 1rem; }
 .tool-form label { display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.85rem; color: var(--muted); font-weight: 500; }
-.tool-form select, .tool-form input[type="number"], .tool-form input[type="text"] {
+.tool-form select, .tool-form input[type="number"], .tool-form input[type="text"], .tool-form input[type="password"] {
   padding: 0.65rem 0.8rem;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
@@ -212,6 +216,20 @@ details summary { cursor: pointer; color: var(--muted); font-size: 0.85rem; font
 .bubble th, .bubble td { border: 1px solid rgba(0, 0, 0, 0.12); padding: 0.35em 0.6em; text-align: left; }
 .chat-msg.user .bubble code { background: rgba(255, 255, 255, 0.15); }
 .chat-msg.user .bubble th, .chat-msg.user .bubble td { border-color: rgba(255, 255, 255, 0.25); }
+
+/* typing indicator */
+.typing-dots { display: inline-flex; gap: 0.25rem; padding: 0.2rem 0; }
+.typing-dots span {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--muted);
+  animation: typing-bounce 1.2s infinite ease-in-out;
+}
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typing-bounce {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.5; }
+  40% { transform: translateY(-4px); opacity: 1; }
+}
 #chat-form { display: flex; gap: 0.6rem; }
 #chat-input { flex: 1; padding: 0.7rem 1rem; border: 1px solid var(--line); border-radius: var(--radius-pill); font-size: 0.95rem; font-family: inherit; }
 #chat-input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }

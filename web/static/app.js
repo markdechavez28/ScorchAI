@@ -136,14 +136,32 @@ function addChatMsg(who, text) {
   chatLog.appendChild(div);
   chatLog.scrollTop = chatLog.scrollHeight;
 }
+function showTypingIndicator() {
+  const div = document.createElement("div");
+  div.className = "chat-msg agent";
+  div.id = "typing-indicator";
+  div.innerHTML = `<div class="bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
+  chatLog.appendChild(div);
+  chatLog.scrollTop = chatLog.scrollHeight;
+}
+function hideTypingIndicator() {
+  document.getElementById("typing-indicator")?.remove();
+}
 async function askAgent(question) {
   showChatLog();
   addChatMsg("You", question);
-  const r = await postJSON("/api/chat", { question, conversation_id: activeConversationId });
-  addChatMsg("Agent", r.error || r.answer);
-  if (r.conversation_id && r.conversation_id !== activeConversationId) {
-    activeConversationId = r.conversation_id;
-    await loadConversations();
+  showTypingIndicator();
+  try {
+    const r = await postJSON("/api/chat", { question, conversation_id: activeConversationId });
+    hideTypingIndicator();
+    addChatMsg("Agent", r.error || r.answer);
+    if (r.conversation_id && r.conversation_id !== activeConversationId) {
+      activeConversationId = r.conversation_id;
+      await loadConversations();
+    }
+  } catch (err) {
+    hideTypingIndicator();
+    throw err;
   }
 }
 document.getElementById("chat-form").addEventListener("submit", e => {
