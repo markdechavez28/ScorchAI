@@ -217,6 +217,19 @@ details summary { cursor: pointer; color: var(--muted); font-size: 0.85rem; font
 .chat-msg.user .bubble code { background: rgba(255, 255, 255, 0.15); }
 .chat-msg.user .bubble th, .chat-msg.user .bubble td { border-color: rgba(255, 255, 255, 0.25); }
 
+/* disclosure/assumption text from the agent (model variant, assumed inputs, caveats) is
+   wrapped in a markdown blockquote so it reads as secondary context, not the headline answer */
+.bubble blockquote {
+  margin: 0.55em 0 0;
+  padding: 0.15em 0.8em;
+  border-left: 3px solid rgba(0, 0, 0, 0.12);
+  color: var(--muted);
+  font-size: 0.85em;
+  line-height: 1.45;
+}
+.bubble blockquote p { margin: 0.3em 0; }
+.chat-msg.user .bubble blockquote { border-left-color: rgba(255, 255, 255, 0.3); color: rgba(255, 255, 255, 0.75); }
+
 /* typing indicator */
 .typing-dots { display: inline-flex; gap: 0.25rem; padding: 0.2rem 0; }
 .typing-dots span {

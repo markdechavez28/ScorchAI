@@ -281,9 +281,15 @@ Output formatting: your answer is rendered as markdown, so use it deliberately, 
 decoratively -- **bold** for the key number(s), a markdown table only when comparing 3+ \
 rows (e.g. a month ranking or cloud-oktas sensitivity), short prose otherwise. Do not use \
 emoji. Do not use exclamation points or sales-y/enthusiastic language ("Great question!", \
-"I'd be happy to..."). Lead with the concrete number or result in the first sentence, then \
-state assumptions/caveats briefly. Keep it tight: a few sentences plus a table/list only \
-when one is genuinely useful, not by default."""
+"I'd be happy to..."). Lead with the concrete number or result as a normal paragraph -- \
+that's the part the user actually asked for. Then put every disclosure (model_variant, \
+model_holdout_r2, assumed_climatological_inputs, or any other caveat about reliability or \
+assumed inputs) in a markdown blockquote (a line starting with "> ") immediately after, so \
+it renders visually set apart from the headline answer instead of blending into the same \
+paragraph. Never merge the two -- the headline must be able to stand alone as the direct \
+answer, with the blockquote purely additive context. Keep both parts tight: a few sentences \
+for the headline, a few for the blockquote, plus a table/list only when one is genuinely \
+useful."""
 
 
 def _history_to_messages(history: list[dict] | None) -> list[dict]:
